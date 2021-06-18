@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Multiplayer Flappy Bird</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    
+        <style>
+            #gameScreen{
+                display: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <section class = "vh-100">
+            <div class="container h-100">
+                <div id="InitialScreen", class="h-100">
+                    <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                        <h1>Multiplayer Flappy Bird</h1>
+
+                        <button type="submit" class="btn btn-success" id="btnNewGame">
+                            Create New Game
+                        </button>
+                        <div> Or</div>
+                        <div class="form-group">
+                            <input type="text" placeholder="Enter Game Code" id="inputGameCode"/>
+                        </div>
+                        <button type="submit" class="btn btn-success" id="btnJoinGame">
+                            Join Game
+                        </button>
+                    </div>
+                </div>
+
+                <div id="gameScreen" class="h-100">
+                    <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                        <h1>Game Code: <span id="spnGameCode"></span></h1>
+                        <canvas id="canvas1"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <script type="module" src="/static/game_client.js"></script>
+    </body>
+</html>

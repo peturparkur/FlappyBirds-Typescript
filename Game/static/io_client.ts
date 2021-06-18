@@ -1,0 +1,1 @@
+const socket = (window as any).io("http://localhost:4040");

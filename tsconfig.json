@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "allowJs": true,
+        "outDir": "out",
+        "moduleResolution": "node",
+        "typeRoots": ["node_modules/@types"],
+        "allowSyntheticDefaultImports": true,
+        "module": "es2020",
+    },
+    "exclude": [
+        "out",
+        "node_modules"
+    ]
+    
+}
