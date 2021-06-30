@@ -232,7 +232,7 @@ function OnRequest(request) {
             }));
             //check if this room can be started
             if (room.ready) {
-                room.StartGame(10);
+                room.StartGame(30);
             }
         }
         if (msgData.Method === "CreateGame") {
