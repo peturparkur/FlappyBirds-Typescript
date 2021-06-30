@@ -76,16 +76,17 @@ function ClearCanvas(ctx) {
 }
 //we just need to know where the birds and obstacles are to recreate the visual of the game
 function RenderGame(ctx, birds, obstacles, index = -1) {
-    for (let i = 0; i < birds.length; i++) {
-        if (i === index) {
-            DrawCircle(ctx, birds[i].circle, "red");
-            continue;
-        }
-        DrawCircle(ctx, birds[i].circle, "blue");
-    }
     for (let i = 0; i < obstacles.length; i++) {
         DrawRect(ctx, obstacles[i].rect, "green");
     }
+    for (let i = 0; i < birds.length; i++) {
+        if (i === index) {
+            //DrawCircle(ctx, birds[i].circle, "red");
+            continue;
+        }
+        DrawCircle(ctx, birds[i].circle, "blue"); //other players are blue
+    }
+    DrawCircle(ctx, birds[index].circle, "red"); //we are red
 }
 canvas.addEventListener("click", (event) => {
     //send data for mouse click
@@ -106,7 +107,7 @@ function RequestCreateGame(numPlayers = 2) {
         "numPlayers": numPlayers,
         "width": canvas.width,
         "height": canvas.height,
-        "fwSpeed": canvas.width * 0.05
+        "fwSpeed": canvas.width * 0.02
     };
     client.send(JSON.stringify(payload));
 }

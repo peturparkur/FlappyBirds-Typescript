@@ -130,7 +130,7 @@ class Room{
 
             }
             else{
-                console.log("Winner: ", game.winner, ", with client index: ", game.winner);
+                console.log("Winner: ", game.winner, ", with client index: ", game.winner); //-1 means it's a draw
 
                 //Send back a message for who the winner is
                 let payload ={

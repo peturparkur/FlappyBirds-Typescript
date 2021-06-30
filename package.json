@@ -9,7 +9,7 @@
     "prestart": "tsc",
     "run": "tsc node out/start_server.js"
   },
-  "author": "Peter Nagymathe t",
+  "author": "Peter Nagymathe",
   "repository": {
     "type": "git",
     "url": "https://github.com/peturparkur/FlappyBirds-Typescript.git"

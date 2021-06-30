@@ -55,13 +55,15 @@ class Game {
     }
     //when action is done by bird aka => button pressed to "jump"
     Action(index) {
+        if (!this.active)
+            return; //if the game is inactive
         if (!this.birds[index].active)
             return; //if not active ignore
         this.birds[index].velocity.y = -this.jumpFactor * this.gravity; //set the up velocity to value
     }
     Winner() {
         let count = 0;
-        let winner = -1;
+        let winner = -2;
         for (let i = 0; i < this.birds.length; i++) {
             if (this.birds[i].active) {
                 winner = i;
@@ -69,8 +71,10 @@ class Game {
             }
             ;
             if (count > 1)
-                return -1; //no winner yet
+                return -2; //no winner yet
         }
+        if (count === 0)
+            return -1; //draw
         return winner;
     }
     Step(dt = this.timestep) {
@@ -96,7 +100,7 @@ class Game {
             this.obstacles[i].rect.x -= this.forwardSpeed * dt; //want them to move left
         }
         //evaluating collision
-        this.CheckCollision();
+        this.CheckValid();
         //Checking if birds hit the bottom of the ground
         for (let i = 0; i < this.birds.length; i++) {
             if (this.birds[i].position.y > this.height || this.birds[i].position.y < -this.birds[i].radius * 2) {
@@ -105,22 +109,23 @@ class Game {
         }
         //generate new obstacle
         if (this.obstacles.length <= 0) {
-            this.GenerateObstacle(50, 100);
+            this.GenerateObstacle(50, 150);
         }
         else {
             //if the very first element is behind a point generate new obstacle
-            if (this.obstacles[0].position.x <= this.obstacles[0].width)
-                this.GenerateObstacle(50, 100);
+            if (this.obstacles[0].position.x < -this.obstacles[0].width)
+                this.GenerateObstacle(50, 150);
         }
         //Now we want to remove obstacles when they're out of the screen
         //the obstacles are ordered in terms of distance to bird
         if (this.obstacles.length <= 0)
             return;
-        if (this.obstacles[0].position.x < this.obstacles[0].width)
+        if (this.obstacles[0].position.x < -this.obstacles[0].width)
             this.obstacles.shift();
+        //End case for the game
         //this.active = !this.GameOver();
         this.winner = this.Winner();
-        if (this.winner >= 0) {
+        if (this.winner >= -1) {
             this.active = false;
         }
     }
@@ -133,6 +138,27 @@ class Game {
                 return false; //we have atleast 2 active players
         }
         return true;
+    }
+    //a bird is valid if it's on the obstacle
+    CheckValid() {
+        for (let i = 0; i < this.obstacles.length; i++) {
+            for (let j = 0; j < this.birds.length; j++) {
+                //ofset is measured from obstacle top left corner
+                let offset = new Vector2(this.birds[j].position.x - this.obstacles[i].position.x, this.birds[j].position.y - this.obstacles[i].position.y);
+                console.log("offset: ", offset);
+                //check if within range of obstacle
+                if (offset.x > 0 && offset.x < this.obstacles[i].width) {
+                    console.log("within X range");
+                    //now we need to check if the y range is valid
+                    //then we are in valid bounds
+                    if (offset.y > this.birds[j].radius && offset.y < this.obstacles[i].height - this.birds[j].radius) {
+                    }
+                    else {
+                        this.birds[j].active = false; //de-active bird because not at right bit
+                    }
+                }
+            }
+        }
     }
     CheckCollision() {
         //we check if any of the birds overlap

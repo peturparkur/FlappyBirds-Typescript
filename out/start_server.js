@@ -101,7 +101,7 @@ class Room {
                 }
             }
             else {
-                console.log("Winner: ", game.winner, ", with client index: ", game.winner);
+                console.log("Winner: ", game.winner, ", with client index: ", game.winner); //-1 means it's a draw
                 //Send back a message for who the winner is
                 let payload = {
                     //"winnerClientId" : this.clients[game.winner], //might want to back some information about other client, so we can display name
