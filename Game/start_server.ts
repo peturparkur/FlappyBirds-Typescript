@@ -110,7 +110,7 @@ class Room{
         let game : Game = games.get(this.gameId);
         const intervalId = setInterval(() => {
             if(game.active){
-                game.Step(1);
+                game.Step(1/frame_rate);
 
                 //send the states
                 let payload = {
@@ -313,7 +313,7 @@ function OnRequest(request : WS.request){
             let fwSpeed : number = msgData.fwSpeed;
 
             let gameId = guid(); //identifier
-            let game = new Game(width, height, numPlayers, 9.81, 0.25, fwSpeed);
+            let game = new Game(width, height, numPlayers, 9, 0.02, 0.15, 4);
             games.set(gameId, game); //store the current game with given ID
 
             let roomId = guid();

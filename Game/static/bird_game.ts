@@ -66,17 +66,19 @@ class Game{
 
     winner : number; //winner index
 
+    actions : Array<Boolean>; //actions
 
-    constructor(width:number = 800, height:number = 500, numPlayers : number = 1, gravity : number = 9.81, timestep : number = 0.2, fwSpeed : number = 1, jumpFactor : number = 4){
+
+    constructor(width:number = 800, height:number = 500, numPlayers : number = 1, gravity : number = 9.81, timestep : number = 0.02, fwSpeed : number = 1, jumpFactor : number = 4){
         this.active = true;
         this.step = 0;
         this.width = width;
         this.height = height;
 
         this.numPlayers = numPlayers;
-        this.gravity = gravity;
+        this.gravity = gravity * this.height;
         this.timestep = timestep;
-        this.forwardSpeed = fwSpeed;
+        this.forwardSpeed = fwSpeed * this.width;
 
         this.jumpFactor = jumpFactor;
 
@@ -87,6 +89,7 @@ class Game{
             this.birds[i] = new Bird(this.width * 0.05, this.height*0.5, 25); //position and radius
             //this.active[i] = true; //by default all birds are active
         }
+        this.actions = new Array<Boolean>(this.birds.length);
 
         this.obstacles = new Array<Obstacle>(0);
 
@@ -97,7 +100,8 @@ class Game{
     Action(index : number){
         if(!this.active) return; //if the game is inactive
         if(!this.birds[index].active) return; //if not active ignore
-        this.birds[index].velocity.y = -this.jumpFactor*this.gravity; //set the up velocity to value
+        this.actions[index] = true;
+        //this.birds[index].velocity.y = -this.jumpFactor*this.gravity; //set the up velocity to value
     }
 
     Winner(){
@@ -121,9 +125,16 @@ class Game{
         //integrate the accelaration
         for(let i=0; i<this.birds.length; i++){
             if(!this.birds[i].active) continue; //don't do anything
-            this.birds[i].velocity.y += 0.5*this.gravity*dt; //might want to make this conditional
+            if(!this.actions[i]){
+                this.birds[i].velocity.y += 0.5*this.gravity*dt; //might want to make this conditional
+            }
+            else{
+                this.birds[i].velocity.y = -this.jumpFactor * this.gravity * dt;
+                this.actions[i] = false;
+            }
+            
 
-            if(this.birds[i].velocity.y > 50) this.birds[i].velocity.y = 50;
+            //if(this.birds[i].velocity.y > 50) this.birds[i].velocity.y = 50;
         }
 
         //integrate velocity
@@ -144,7 +155,7 @@ class Game{
 
         //Checking if birds hit the bottom of the ground
         for(let i=0; i<this.birds.length; i++){
-            if(this.birds[i].position.y > this.height || this.birds[i].position.y < -this.birds[i].radius*2){
+            if(this.birds[i].position.y > this.height + this.birds[i].radius || this.birds[i].position.y <= -this.birds[i].radius){
                 this.birds[i].active = false;
             }
         }
@@ -152,13 +163,13 @@ class Game{
         //generate new obstacle
         if(this.obstacles.length <= 0)
         {
-            this.GenerateObstacle(50, 150);
+            this.GenerateObstacle(0.1 * this.width, 0.334 * this.height);
         }
         else
         {
             //if the very first element is behind a point generate new obstacle
             if(this.obstacles[0].position.x < -this.obstacles[0].width)
-                this.GenerateObstacle(50, 150);
+                this.GenerateObstacle(0.1 * this.width, 0.334 * this.height);
         }
 
 
@@ -169,8 +180,14 @@ class Game{
 
         //End case for the game
         //this.active = !this.GameOver();
-        this.winner = this.Winner();
-        if(this.winner >= -1){
+        if(this.numPlayers != 1){
+            this.winner = this.Winner();
+            if(this.winner >= -1){
+                this.active = false;
+            }
+        }
+        else{
+            if(this.birds[0].active) return;
             this.active = false;
         }
     }
@@ -233,6 +250,103 @@ class Game{
         this.obstacles = new Array<Obstacle>(0);
     }
 
+    GenerateObstacle(width : number = 50, height : number = 100){
+        //want to decide the y offset only with fixed width and height
+        //want to put it to just outside the screen
+        let y = Math.random() * (this.height - height); //minimum -> 0, max -> screen_height - height
+        let obstacle = new Obstacle(this.width, y, width, height);
+
+        this.obstacles.push(obstacle); //add the obstacle to the array
+    }
+}
+
+abstract class BaseGame{
+    //this should serve as a base class for any game simulation
+
+    active : boolean; //is the simulation active
+    //pixel dimensions of the simulation
+    width : number;
+    height : number;
+    intervalId : NodeJS.Timeout;
+
+    step : number; //for how many frames the game has been running for
+
+    constructor(width : number = 800, height : number = 600){
+        this.active = false; //by default the game is inactive
+        this.width = width;
+        this.height = height;
+        this.intervalId = null;
+        this.step = 0;
+    }
+
+    Start(frame_rate : number){
+        if(this.active) return; //we are already running
+        this.step = 0;
+        this.OnStart();
+        this.intervalId = setInterval(() => {
+            this.OnUpdate(1/frame_rate);
+            this.step += 1;
+        });
+        this.active = true;
+    }
+
+    Stop(){
+        if(this.intervalId === null) return;
+        clearInterval(this.intervalId)
+        this.OnStop();
+        this.active = false;
+    }
+
+    //delta time = 1/frame_rate -> time between frames in seconds
+    abstract OnUpdate(deltatime : number) : void //this is called every frame
+    abstract OnStart() : void //called when the game instance is started
+    abstract OnStop() : void //called when the game instance is stopped
+}
+
+class FlappyBirdGame extends BaseGame{
+
+    gravity : number; //gravity constant for falling
+    forwardSpeed : number; //speed of which things move from right to left
+    jumpFactor : number; //factor against gravity for jumping
+
+    numPlayers : number; //number of players
+
+    birds : Array<Bird>; //birds of the players
+    obstacles : Array<Obstacle>; //obstacles
+
+
+    constructor(width : number, height:number, gravity : number = 9.81, forwardSpeed : number = 1, jumpFactor : number = 4){
+        super(width, height);
+        this.gravity = gravity;
+        this.forwardSpeed = forwardSpeed;
+        this.jumpFactor = jumpFactor;
+        this.numPlayers = 0;
+        this.birds = new Array<Bird>(); //for now empty
+        this.obstacles = new Array<Obstacle>(); //empty obstacles
+    }
+
+    //add another bird
+    AddPlayer() : void {
+        let bird = new Bird(0, 0, (this.width + this.height) / (2*10));
+        this.birds.push(bird);
+    }
+
+    AddPlayers(count : number) : void{
+        for(let i =0; i<count; i++){
+            this.AddPlayer();
+        }
+    }
+
+    Reset(){
+        for(let i=0; i<this.birds.length; i++){
+            //start birds in center height but left side
+            this.birds[i] = new Bird(this.width * 0.05, this.height*0.5, 25); //position and radius
+            //this.active[i] = true; //by default all birds are active
+        }
+        this.obstacles = new Array<Obstacle>(0);
+    }
+
+    //generate a random height in pixel space
     GenerateObstacle(width : number = 20, height : number = 50){
         //want to decide the y offset only with fixed width and height
         //want to put it to just outside the screen
@@ -241,6 +355,26 @@ class Game{
 
         this.obstacles.push(obstacle); //add the obstacle to the array
     }
+
+    OnUpdate(deltatime: number): void {
+        if(!this.active) return;
+
+        for(let i = 0; i<this.birds.length; i++){
+            if(!this.birds[i].active) continue;
+            this.birds[i].velocity.y += this.gravity * deltatime; 
+        }
+
+        for(let i=0; i<this.birds.length; i++){
+            if(!this.birds[i].active) continue;
+            this.birds[i].position.y += this.birds[i].velocity.y * deltatime;
+        }
+    }
+
+    OnStart(): void {
+    }
+    OnStop(): void {
+    }
+
 }
 
 export{ Bird, Obstacle, Game}

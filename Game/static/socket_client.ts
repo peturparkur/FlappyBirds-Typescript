@@ -1,6 +1,7 @@
 //const PORT : number = 4040;
-const PORT : number = 8080; //for docker?
-const client = new WebSocket("ws://localhost:"+PORT); //connect to server
+const PORT : number = 4040; //for docker?
+const address : string = "localhost"
+const client = new WebSocket("ws://" + address + ":"+PORT); //connect to server
 
 let clientId : string = null;
 

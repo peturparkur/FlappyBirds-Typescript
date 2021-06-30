@@ -107,13 +107,13 @@ function RequestCreateGame(numPlayers = 2) {
         "numPlayers": numPlayers,
         "width": canvas.width,
         "height": canvas.height,
-        "fwSpeed": canvas.width * 0.02
+        "fwSpeed": 0.02
     };
     client.send(JSON.stringify(payload));
 }
 btnNewGame.addEventListener("click", (event) => {
     console.log("request to make game");
-    RequestCreateGame(2);
+    RequestCreateGame(1);
 });
 btnJoinGame.addEventListener("click", (event) => {
     console.log(inputGameCode.value);
