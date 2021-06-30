@@ -121,7 +121,7 @@ function RequestCreateGame(numPlayers = 2) {
 }
 btnNewGame.addEventListener("click", (event) => {
     console.log("request to make game");
-    RequestCreateGame(1);
+    RequestCreateGame(2);
 });
 btnJoinGame.addEventListener("click", (event) => {
     console.log(inputGameCode.value);
