@@ -1,5 +1,5 @@
 //import my stuff for easier drawing and calculations
-import { Vector2, Circle} from "./my_classes.js";
+import { Vector2, Circle, Rect} from "./my_classes.js";
 import { DrawCircle, DrawRect, InsideCircle, InsideRect } from "./utility.js"
 import {Bird, Obstacle} from "./bird_game.js" //we shouldn't know about the game itself to prevent cheating
 import { client} from "./socket_client.js"; //for networking
@@ -104,10 +104,20 @@ function ClearCanvas(ctx:CanvasRenderingContext2D){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+function DrawObstacle(ctx : CanvasRenderingContext2D, obstacle : Rect, screenHeight : number) {
+    DrawRect(ctx, new Rect(obstacle.x, 0, obstacle.width, 
+                            obstacle.y), "green"); //top side
+
+    DrawRect(ctx, new Rect(obstacle.x, obstacle.y + obstacle.height, obstacle.width, 
+                            screenHeight - (obstacle.y + obstacle.height)), "green"); //bottom side
+}
+
 //we just need to know where the birds and obstacles are to recreate the visual of the game
 function RenderGame(ctx : CanvasRenderingContext2D, birds : Bird[], obstacles : Obstacle[], index : number = -1){
     for(let i=0; i<obstacles.length; i++){
-        DrawRect(ctx, obstacles[i].rect, "green");
+        DrawObstacle(ctx, obstacles[i].rect, canvas.height);
+        //DrawRect(ctx, new Rect(obstacles[i].rect.x, 0, obstacles[i].rect.width, canvas.height));
+        DrawRect(ctx, obstacles[i].rect, "white", true);
     }
 
     for(let i=0; i<birds.length; i++){

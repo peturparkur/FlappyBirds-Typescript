@@ -107,7 +107,8 @@ class Game {
             this.obstacles[i].rect.x -= this.forwardSpeed * dt; //want them to move left
         }
         //evaluating collision
-        this.CheckValid();
+        //this.CheckValid();
+        this.CheckCollision();
         //Checking if birds hit the bottom of the ground
         for (let i = 0; i < this.birds.length; i++) {
             if (this.birds[i].position.y > this.height + this.birds[i].radius || this.birds[i].position.y <= -this.birds[i].radius) {
@@ -179,8 +180,12 @@ class Game {
         //first bruteforce check every obstacle with every bird, few enough stuff that it shouldn't matter
         for (let i = 0; i < this.obstacles.length; i++) {
             for (let j = 0; j < this.birds.length; j++) {
-                let overlap = Intersect(this.birds[j].circle, this.obstacles[i].rect);
-                if (overlap) {
+                let rectangeTop = new Rect(this.obstacles[i].position.x, 0, this.obstacles[i].width, this.obstacles[i].position.y);
+                let rectangeBot = new Rect(this.obstacles[i].position.x, this.obstacles[i].height + this.obstacles[i].position.y, this.obstacles[i].width, this.height - (this.obstacles[i].position.y + this.obstacles[i].height));
+                //let overlap = Intersect(this.birds[j].circle, this.obstacles[i].rect);
+                let overlapTop = Intersect(this.birds[j].circle, rectangeTop);
+                let overlapBot = Intersect(this.birds[j].circle, rectangeBot);
+                if (overlapTop || overlapBot) {
                     //bird[j] is dead
                     this.birds[j].active = false;
                 }

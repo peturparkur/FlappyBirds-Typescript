@@ -1,3 +1,5 @@
+//import my stuff for easier drawing and calculations
+import { Rect } from "./my_classes.js";
 import { DrawCircle, DrawRect } from "./utility.js";
 import { client } from "./socket_client.js"; //for networking
 const btnNewGame = document.getElementById("btnNewGame");
@@ -74,10 +76,16 @@ client.onmessage = function (message) {
 function ClearCanvas(ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
+function DrawObstacle(ctx, obstacle, screenHeight) {
+    DrawRect(ctx, new Rect(obstacle.x, 0, obstacle.width, obstacle.y), "green"); //top side
+    DrawRect(ctx, new Rect(obstacle.x, obstacle.y + obstacle.height, obstacle.width, screenHeight - (obstacle.y + obstacle.height)), "green"); //bottom side
+}
 //we just need to know where the birds and obstacles are to recreate the visual of the game
 function RenderGame(ctx, birds, obstacles, index = -1) {
     for (let i = 0; i < obstacles.length; i++) {
-        DrawRect(ctx, obstacles[i].rect, "green");
+        DrawObstacle(ctx, obstacles[i].rect, canvas.height);
+        //DrawRect(ctx, new Rect(obstacles[i].rect.x, 0, obstacles[i].rect.width, canvas.height));
+        DrawRect(ctx, obstacles[i].rect, "white", true);
     }
     for (let i = 0; i < birds.length; i++) {
         if (i === index) {
